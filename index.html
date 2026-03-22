@@ -232,6 +232,13 @@
                     </div>
                     <img src="favicon.jpg" class="hero-img">
                 </section>
+                
+                <section style="background: var(--card-bg); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 60px; border: 1px solid rgba(255,204,0,0.2);">
+                    <h2 style="color:var(--primary)">Scarica la nostra App</h2>
+                    <p style="margin: 10px 0 20px;">Porta Radio Estasi sempre con te sul tuo smartphone Android!</p>
+                    <a href="https://www.appcreator24.com/app3189964-35h0xg" target="_blank" class="btn">SCARICA ORA</a>
+                </section>
+
                 <h2>Ultime News</h2><div id="h-news">${renderNews(3)}</div>
                 <h2 style="margin-top:40px">Prossimi Eventi</h2><div id="h-eventi">${renderEventi(2)}</div>
             `;
@@ -322,7 +329,7 @@
                     <option value="Sofia Chialastri">Sofia Chialastri</option>
                     <option value="Alessandro Sirica">Alessandro Sirica</option>
                     <option value="Vittorina Di Vincenzo">Vittorina Di Vincenzo</option>
-                </option>
+                </select>
                 <button class="btn" onclick="saveEvento()">Salva Evento</button>
             </div>
             <button class="btn" style="background:#444; color:#fff" onclick="localStorage.clear(); location.reload();">Resetta Tutto</button>`;
