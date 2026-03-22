@@ -131,7 +131,7 @@
         .footer-col a:hover { color: var(--primary); }
 
         .admin-form { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .admin-form input, .admin-form textarea { width: 100%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; }
+        .admin-form input, .admin-form textarea, .admin-form select { width: 100%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; }
 
         @media (max-width: 768px) {
             .section-flex, .footer-main { flex-direction: column; grid-template-columns: 1fr; }
@@ -249,19 +249,19 @@
         else if (pageId === 'news') { c.innerHTML = `<h1>News</h1><div>${renderNews(20)}</div>`; }
         else if (pageId === 'eventi') { c.innerHTML = `<h1>Eventi</h1><div>${renderEventi(20)}</div>`; }
         else if (pageId === 'team') { 
-            c.innerHTML = `<h1>Il Team</h1><div class="prog-item"><img src="favicon.jpg" class="prog-img-circle"><div><h3>Redazione</h3><p>In aggiornamento...</p></div></div>`; 
+            c.innerHTML = `<h1>Il Team</h1>
+                <div class="prog-item"><img src="mattia-chialastri.jpg" class="prog-img-circle"><div><h3>Mattia Chialastri <small>(Editore)</small></h3><p>Da piccolo credevo di essere un pazzo a voler diventare un tecnico di ascensori. Dopo gli ascensori sono passato alla mania per le autostrade e poi alla passione per gli aerei fino a quando ho scoperto un mondo fantastico, quello della radio. Mi sono sempre chiesto come abbia potuto cambiare così tante passioni, ma il mio istinto mi dice questo, fate solo cose positive!</p></div></div>
+                <div class="prog-item"><img src="sofia-chialastri.jpg" class="prog-img-circle"><div><h3>Sofia Chialastri <small>(Direttore Musicale)</small></h3><p>Fai della tua vita un sogno e di un sogno una realtà.</p></div></div>
+                <div class="prog-item"><img src="alessandro-sirica.jpg" class="prog-img-circle"><div><h3>Alessandro Sirica <small>(Conduttore)</small></h3><p>Vivo di passioni, sorrido poco ma sono quello che in classe faceva casino e che oggi trova sempre un motivo per fare festa! Fate i bravi e soprattutto buone cose. See ya!</p></div></div>
+                <div class="prog-item"><img src="favicon.jpg" class="prog-img-circle"><div><h3>Vittorina Di Vincenzo <small>(Speaker)</small></h3><p>Energia pura e voce che arriva dritta al cuore. Con la sua solarità trasforma ogni diretta in un momento indimenticabile, portando il sorriso nelle case di chi ascolta con eleganza e simpatia.</p></div></div>`; 
         }
         else if (pageId === 'palinsesto') { renderPalinsestoLayout(); }
         else if (pageId === 'programmi') {
             c.innerHTML = `<h1>I nostri Programmi</h1>
                 <div class="prog-item"><img src="wake-up-radio.png" class="prog-img-circle"><div><h3>Wake up radio</h3><p><strong>La tua mattina inizia qui</strong><br>Dalle 10 alle 13, Wake up radio è il programma radiofonico che trasforma le prime ore della giornata in un’esperienza piena di energia, musica e buonumore. Tra hit del momento, curiosità, notizie leggere e chiacchiere con gli ascoltatori, ogni puntata è un modo per partire con il piede giusto e affrontare la giornata con il sorriso. Con ritmo, leggerezza e tanta compagnia, il programma è pensato per chi vuole godersi la mattina senza fretta, ma senza mai perdere energia.<br>Wake up radio – perché iniziare bene è già metà giornata!</p></div></div>
-                
                 <div class="prog-item"><img src="shuffle.png" class="prog-img-circle"><div><h3>Shuffle</h3><p><strong>La musica senza regole!</strong><br>Benvenuti in Shuffle, il programma radiofonico dove ogni brano è una sorpresa! Niente scalette rigide, niente generi predefiniti: qui la musica scorre libera, proprio come le tue emozioni. Dal pop all’indie, dal rock al funk, passando per hit del passato e nuove scoperte, Shuffle mescola tutto in un mix imprevedibile e irresistibile. Tra un brano e l’altro, curiosità musicali, storie dietro le canzoni, aneddoti sugli artisti e tanta interazione con gli ascoltatori, che possono proporre il loro pezzo “a sorpresa” della giornata.<br>Shuffle – perché la musica più bella è quella che non ti aspetti!</p></div></div>
-                
                 <div class="prog-item"><img src="musica-soft.png" class="prog-img-circle"><div><h3>Musica Soft</h3><p><strong>La colonna sonora dei tuoi momenti tranquilli</strong><br>Lasciati avvolgere dal suono morbido di Soft, il programma radiofonico dedicato alle melodie più rilassanti e raffinate. Una selezione di brani pop, soul, jazz e acoustic pensata per accompagnarti con calma, leggerezza e stile. Ogni puntata è un viaggio sonoro tra voci calde, arrangiamenti delicati e parole che arrivano dritte al cuore. Niente fretta, niente rumore — solo musica che fa respirare.<br>Musica soft – perché a volte basta una nota dolce per cambiare l’umore della giornata.</p></div></div>
-                
                 <div class="prog-item"><img src="cado-tra-le-pagine.png" class="prog-img-circle"><div><h3>Cado tra le pagine</h3><p><strong>Storie per addormentarsi con la mente e sognare con il cuore</strong><br>Cado tra le pagine è il programma radiofonico pensato per chi ama addormentarsi accompagnato dal suono delle parole. Ogni sera, prima di andare a letto, scegliamo per voi un libro e ne leggiamo un capitolo in diretta, per regalarvi un momento di calma, immaginazione e dolce intimità. Tra romanzi, racconti e pagine intramontabili, lasciatevi cullare dalle voci, dalle storie e dalle emozioni che prendono vita nell’aria. Perché, a volte, basta una buona storia per cadere… tra le pagine.<br>Cado tra le pagine – la buonanotte più bella è fatta di parole.</p></div></div>
-                
                 <div class="prog-item"><img src="80-90.png" class="prog-img-circle"><div><h3>80' 90'</h3><p><strong>La musica che non passa mai di moda!</strong><br>Torna l’energia, lo stile e la magia di due decenni indimenticabili! 80’ 90’ è il programma radiofonico che ti fa rivivere le emozioni dei grandi successi che hanno fatto la storia della musica. Dai synth e le sonorità iconiche degli anni Ottanta alla rivoluzione pop, rock e dance dei Novanta, ogni puntata è un viaggio nel tempo tra hit, curiosità, aneddoti e ricordi. Con la conduzione frizzante e tanta passione, 80’ 90’ ti riporta alle colonne sonore della tua vita – quelle che ancora oggi fanno cantare, ballare e sognare.<br>80’ 90’ – Due decenni, una sola grande emozione!</p></div></div>`;
         }
         else if (pageId === 'contatti') {
@@ -288,16 +288,66 @@
 
     function renderNews(limit) {
         if(!db.news.length) return "<p>Nessuna news presente.</p>";
-        return db.news.slice(0, limit).map(n => `<div class="admin-form"><h4>${n.t}</h4><p>${n.d}</p></div>`).join('');
+        return db.news.slice(0, limit).map(n => `<div class="admin-form"><small style="color:var(--primary)">${n.cat}</small><h4>${n.t}</h4><p>${n.d}</p></div>`).join('');
     }
 
     function renderEventi(limit) {
         if(!db.eventi.length) return "<p>Nessun evento in programma.</p>";
-        return db.eventi.slice(0, limit).map(e => `<div style="border-left:4px solid var(--primary); padding-left:15px; margin-bottom:20px;"><h4>${e.t}</h4><small>${e.date}</small></div>`).join('');
+        return db.eventi.slice(0, limit).map(e => `<div style="border-left:4px solid var(--primary); padding-left:15px; margin-bottom:20px;"><h4>${e.t}</h4><p>${e.d}</p><small>📍 ${e.loc} | ⏰ ${e.ora} | 🎙 Presenti: ${e.team}</small></div>`).join('');
     }
 
     function renderAdminPanel() {
-        document.getElementById('content').innerHTML = `<h1>Admin</h1><button class="btn" onclick="saveNews()">Nuova News</button><button class="btn" onclick="saveEvento()">Nuovo Evento</button>`;
+        document.getElementById('content').innerHTML = `
+            <h1>Admin Panel</h1>
+            <div class="admin-form">
+                <h3>Aggiungi News</h3>
+                <input type="text" id="news-t" placeholder="Titolo della news">
+                <textarea id="news-d" placeholder="Testo della notizia"></textarea>
+                <select id="news-cat">
+                    <option value="curiosità">curiosità</option>
+                    <option value="estasi news">estasi news</option>
+                    <option value="attualità">attualità</option>
+                    <option value="altro">altro</option>
+                </select>
+                <button class="btn" onclick="saveNews()">Salva News</button>
+            </div>
+            <div class="admin-form">
+                <h3>Aggiungi Evento</h3>
+                <input type="text" id="ev-t" placeholder="Nome dell'evento">
+                <textarea id="ev-d" placeholder="Descrizione"></textarea>
+                <input type="text" id="ev-loc" placeholder="Luogo">
+                <input type="text" id="ev-ora" placeholder="Ora">
+                <select id="ev-team">
+                    <option value="Mattia Chialastri">Mattia Chialastri</option>
+                    <option value="Sofia Chialastri">Sofia Chialastri</option>
+                    <option value="Alessandro Sirica">Alessandro Sirica</option>
+                    <option value="Vittorina Di Vincenzo">Vittorina Di Vincenzo</option>
+                </option>
+                <button class="btn" onclick="saveEvento()">Salva Evento</button>
+            </div>
+            <button class="btn" style="background:#444; color:#fff" onclick="localStorage.clear(); location.reload();">Resetta Tutto</button>`;
+    }
+
+    function saveNews() {
+        const n = { t: document.getElementById('news-t').value, d: document.getElementById('news-d').value, cat: document.getElementById('news-cat').value };
+        db.news.unshift(n);
+        localStorage.setItem('est_news', JSON.stringify(db.news));
+        alert("News Salvata!");
+        showPage('news');
+    }
+
+    function saveEvento() {
+        const e = { 
+            t: document.getElementById('ev-t').value, 
+            d: document.getElementById('ev-d').value, 
+            loc: document.getElementById('ev-loc').value, 
+            ora: document.getElementById('ev-ora').value,
+            team: document.getElementById('ev-team').value 
+        };
+        db.eventi.unshift(e);
+        localStorage.setItem('est_eventi', JSON.stringify(db.eventi));
+        alert("Evento Salvato!");
+        showPage('eventi');
     }
 
     function renderPalinsestoLayout() {
