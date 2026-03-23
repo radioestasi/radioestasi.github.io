@@ -155,7 +155,12 @@
                 <div onclick="showPage('repliche')">Repliche</div>
             </div>
         </div>
-        <div class="nav-item" onclick="showPage('news')">NEWS</div>
+        <div class="nav-item">NEWS
+            <div class="dropdown">
+                <div onclick="showPage('news')">Estasi News</div>
+                <div onclick="showPage('music-news')">Music News (Rockol)</div>
+            </div>
+        </div>
         <div class="nav-item" onclick="showPage('team')">TEAM</div>
         <div class="nav-item" onclick="showPage('eventi')">EVENTI</div>
         <div class="nav-item" onclick="showPage('admin')" style="color:var(--primary)">ADMIN</div>
@@ -254,6 +259,10 @@
             <p>Oggi Radio Estasi è molto più di una web radio: è una community, un punto di riferimento per chi ama la musica, l’informazione libera e le emozioni vere. Ma dietro ogni successo, resta sempre viva l’immagine di quel ragazzo che, in una stanza troppo piccola per contenere la sua immaginazione, accese per la prima volta un microfono… e diede inizio a tutto.</p>`;
         }
         else if (pageId === 'news') { c.innerHTML = `<h1>News</h1><div>${renderNews(20)}</div>`; }
+        else if (pageId === 'music-news') { 
+            c.innerHTML = `<h1>Music News</h1><p style="margin-bottom:20px; color:#888;">Le ultime notizie dal mondo della musica (via Rockol.it)</p><div id="rss-content">Caricamento notizie in corso...</div>`;
+            fetchMusicNews();
+        }
         else if (pageId === 'eventi') { c.innerHTML = `<h1>Eventi</h1><div>${renderEventi(20)}</div>`; }
         else if (pageId === 'team') { 
             c.innerHTML = `<h1>Il Team</h1>
@@ -301,6 +310,32 @@
     function renderEventi(limit) {
         if(!db.eventi.length) return "<p>Nessun evento in programma.</p>";
         return db.eventi.slice(0, limit).map(e => `<div style="border-left:4px solid var(--primary); padding-left:15px; margin-bottom:20px;"><h4>${e.t}</h4><p>${e.d}</p><small>📍 ${e.loc} | ⏰ ${e.ora} | 🎙 Presenti: ${e.team}</small></div>`).join('');
+    }
+
+    async function fetchMusicNews() {
+        const rssUrl = 'https://www.rockol.it/rss/news';
+        const container = document.getElementById('rss-content');
+        
+        try {
+            // Utilizzo di un servizio proxy pubblico per convertire RSS in JSON (evita problemi CORS)
+            const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+            const data = await response.json();
+
+            if (data.status === 'ok') {
+                container.innerHTML = data.items.map(item => `
+                    <div class="admin-form">
+                        <small style="color:var(--primary)">${item.pubDate}</small>
+                        <h3 style="margin:5px 0;">${item.title}</h3>
+                        <p style="font-size:0.9rem; margin-bottom:10px;">${item.description.replace(/<[^>]*>?/gm, '').substring(0, 200)}...</p>
+                        <a href="${item.link}" target="_blank" class="btn" style="padding: 5px 15px; font-size: 0.75rem;">Leggi tutto</a>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = "<p>Impossibile caricare le news musicali al momento.</p>";
+            }
+        } catch (error) {
+            container.innerHTML = "<p>Errore durante il caricamento delle news.</p>";
+        }
     }
 
     function renderAdminPanel() {
