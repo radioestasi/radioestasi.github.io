@@ -164,7 +164,7 @@
                 <div onclick="showPage('radio')">Chi Siamo</div>
                 <div onclick="showPage('palinsesto')">Palinsesto</div>
                 <div onclick="showPage('programmi')">Programmi</div>
-                <div onclick="showPage('repliche')">Repliche</div>
+                <div onclick="showPage('podcast')">Podcast</div>
             </div>
         </div>
         <div class="nav-item">NEWS
@@ -230,7 +230,8 @@
 
     const db = {
         news: JSON.parse(localStorage.getItem('est_news')) || [],
-        eventi: JSON.parse(localStorage.getItem('est_eventi')) || []
+        eventi: JSON.parse(localStorage.getItem('est_eventi')) || [],
+        podcasts: JSON.parse(localStorage.getItem('est_podcasts')) || []
     };
 
     function getRomeTime() { return new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Rome"})); }
@@ -348,6 +349,26 @@
                 <div class="prog-item"><img src="cado-tra-le-pagine.png" class="prog-img-circle"><div><h3>Cado tra le pagine</h3><p><strong>Storie per addormentarsi con la mente e sognare con il cuore</strong><br>Cado tra le pagine è il programma radiofonico pensato per chi ama addormentarsi accompagnato dal suono delle parole. Ogni sera, prima di andare a letto, scegliamo per voi un libro e ne leggiamo un capitolo in diretta, per regalarvi un momento di calma, immaginazione e dolce intimità. Tra romanzi, racconti e pagine intramontabili, lasciatevi cullare dalle voci, dalle storie e dalle emozioni che prendono vita nell’aria. Perché, a volte, basta una buona storia per cadere… tra le pagine.<br>Cado tra le pagine – la buonanotte più bella è fatta di parole.</p></div></div>
                 <div class="prog-item"><img src="80-90.png" class="prog-img-circle"><div><h3>80' 90'</h3><p><strong>La musica che non passa mai di moda!</strong><br>Torna l’energia, lo stile e la magia di due decenni indimenticabili! 80’ 90’ è il programma radiofonico che ti fa rivivere le emozioni dei grandi successi che hanno fatto la storia della musica. Dai synth e le sonorità iconiche degli anni Ottanta alla rivoluzione pop, rock e dance dei Novanta, ogni puntata è un viaggio nel tempo tra hit, curiosità, aneddoti e ricordi. Con la conduzione frizzante e tanta passione, 80’ 90’ ti riporta alle colonne sonore della tua vita – quelle che ancora oggi fanno cantare, ballare e sognare.<br>80’ 90’ – Due decenni, una sola grande emozione!</p></div></div>`;
         }
+            else if (pageId === 'podcast') {
+            c.innerHTML = `<h1>Repliche & Podcast</h1>
+                <p style="margin-bottom:30px; color:#888;">Riascolta le puntate andate in onda.</p>
+                <div id="podcast-list">
+                    ${db.podcasts.length === 0 ? '<p>Nessun podcast caricato.</p>' : db.podcasts.map(p => `
+                        <div class="prog-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 20px; width: 100%;">
+                                <img src="favicon.jpg" class="prog-img-circle" style="width: 60px; height: 60px;">
+                                <div>
+                                    <h3 style="margin: 0;">${p.t}</h3>
+                                    <p style="font-size: 0.85rem; color: #aaa;">${p.d}</p>
+                                </div>
+                            </div>
+                            <audio controls style="width: 100%; margin-top: 10px; filter: invert(100%);">
+                                <source src="${p.src}" type="audio/mpeg">
+                            </audio>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
         else if (pageId === 'contatti') {
             c.innerHTML = `<h1>Contattaci</h1><p>Email: radioestasi1@gmail.com</p><p>Tel: 3924758156</p>`;
         }
@@ -452,6 +473,28 @@
         alert("Evento Salvato!");
         showPage('eventi');
     }
+    function savePodcast() {
+    const t = document.getElementById('pod-t').value;
+    const d = document.getElementById('pod-d').value;
+    const src = document.getElementById('pod-src').value;
+
+    // Controllo validità
+    if (!t || !src) { 
+        alert("Inserisci almeno il titolo e il link del file audio!"); 
+        return; 
+    }
+
+    const p = { t, d, src };
+    
+    // Aggiunge al database locale
+    db.podcasts.unshift(p);
+    
+    // Salva nel localStorage
+    localStorage.setItem('est_podcasts', JSON.stringify(db.podcasts));
+    
+    alert("Podcast salvato con successo!");
+    showPage('repliche'); // Ti porta subito a vedere il risultato
+}
 
     function renderPalinsestoLayout() {
         const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
