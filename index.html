@@ -222,39 +222,48 @@
 <script>
     const audio = document.getElementById('audioStream');
     const btnPlay = document.getElementById('btnPlay');
-    
+    // QUESTA RIGA MANCAVA:
+    const titleDisplay = document.getElementById('current-onair-title');
+
     btnPlay.onclick = () => {
         if (audio.paused) { 
             audio.play(); 
             btnPlay.innerText = "⏸"; 
-            updateMetadata(); // Avvia il recupero metadati
         } else { 
             audio.pause(); 
             btnPlay.innerText = "▶"; 
         }
     };
+
+    // Funzione aggiornata e semplificata
     async function updateMetadata() {
         try {
-            const response = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/qvdruxs5fqvvv');
-            const reader = response.body.getReader();
+            const r = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/qvdruxs5fqvvv');
+            const reader = r.body.getReader();
+            const decoder = new TextDecoder();
+
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
-                const text = new TextDecoder().decode(value);
-                if (text.includes('streamTitle')) {
-                    const cleanText = text.replace('data:', '').trim();
-                    const data = JSON.parse(cleanText);
-                    titleDisplay.innerText = data.streamTitle || "RADIO ESTASI LIVE";
+                
+                const chunk = decoder.decode(value);
+                // Cerchiamo il titolo nel messaggio SSE di Zeno
+                const match = chunk.match(/"streamTitle":"([^"]+)"/);
+                if (match && match[1]) {
+                    titleDisplay.innerText = match[1];
                 }
             }
         } catch (e) {
+            console.error("Errore metadati:", e);
             titleDisplay.innerText = "RADIO ESTASI LIVE";
+            // In caso di errore riprova tra 30 secondi
+            setTimeout(updateMetadata, 30000);
         }
     }
-    
-    // Richiamala anche all'avvio per non mostrare "Sintonizzazione..."
-    updateMetadata();
 
+    // Avvio automatico
+    updateMetadata();
+    
     const db = {
         news: JSON.parse(localStorage.getItem('est_news')) || [],
         eventi: JSON.parse(localStorage.getItem('est_eventi')) || [],
