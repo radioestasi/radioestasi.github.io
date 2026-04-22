@@ -599,11 +599,12 @@
         else if (h >= 8 && h < 10) cur = "Musica 80-90";
         else if ((d === 0 || d === 6) && h >= 10 && h < 13) cur = "Mattia Chialastri";
         
-        document.getElementById('current-onair-title').innerText = cur;
+        // CANCELLATA LA RIGA: document.getElementById('current-onair-title').innerText = cur;
+        
+        // Se vuoi che il nome del programma a DESTRA del player si aggiorni:
+        const programDisplay = document.getElementById('program-display-player');
+        if (programDisplay) programDisplay.innerText = cur.toUpperCase();
     }
-
-    showPage('home');
-    setInterval(updateGlobalOnAir, 30000);
 </script>
 </body>
 </html>
