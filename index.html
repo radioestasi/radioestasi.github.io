@@ -421,37 +421,47 @@
     }
 
     function renderAdminPanel() {
-        document.getElementById('content').innerHTML = `
-            <h1>Admin Panel</h1>
-            <div class="admin-form">
-                <h3>Aggiungi News</h3>
-                <input type="text" id="news-t" placeholder="Titolo della news">
-                <textarea id="news-d" placeholder="Testo della notizia"></textarea>
-                <select id="news-cat">
-                    <option value="curiosità">curiosità</option>
-                    <option value="estasi news">estasi news</option>
-                    <option value="attualità">attualità</option>
-                    <option value="altro">altro</option>
-                </select>
-                <button class="btn" onclick="saveNews()">Salva News</button>
-            </div>
-            <div class="admin-form">
-                <h3>Aggiungi Evento</h3>
-                <input type="text" id="ev-t" placeholder="Nome dell'evento">
-                <textarea id="ev-d" placeholder="Descrizione"></textarea>
-                <input type="text" id="ev-loc" placeholder="Luogo">
-                <input type="text" id="ev-ora" placeholder="Ora">
-                <select id="ev-team">
-                    <option value="Mattia Chialastri">Mattia Chialastri</option>
-                    <option value="Sofia Chialastri">Sofia Chialastri</option>
-                    <option value="Alessandro Sirica">Alessandro Sirica</option>
-                    <option value="Vittorina Di Vincenzo">Vittorina Di Vincenzo</option>
-                </select>
-                <button class="btn" onclick="saveEvento()">Salva Evento</button>
-            </div>
-            <button class="btn" style="background:#444; color:#fff" onclick="localStorage.clear(); location.reload();">Resetta Tutto</button>`;
-    }
+    document.getElementById('content').innerHTML = `
+        <h1>Admin Panel</h1>
+        
+        <div class="admin-form">
+            <h3>Aggiungi News</h3>
+            <input type="text" id="news-t" placeholder="Titolo della news">
+            <textarea id="news-d" placeholder="Testo della notizia"></textarea>
+            <select id="news-cat">
+                <option value="curiosità">curiosità</option>
+                <option value="estasi news">estasi news</option>
+                <option value="attualità">attualità</option>
+                <option value="altro">altro</option>
+            </select>
+            <button class="btn" onclick="saveNews()">Salva News</button>
+        </div>
 
+        <div class="admin-form">
+            <h3>Aggiungi Evento</h3>
+            <input type="text" id="ev-t" placeholder="Nome dell'evento">
+            <textarea id="ev-d" placeholder="Descrizione"></textarea>
+            <input type="text" id="ev-loc" placeholder="Luogo">
+            <input type="text" id="ev-ora" placeholder="Ora">
+            <select id="ev-team">
+                <option value="Mattia Chialastri">Mattia Chialastri</option>
+                <option value="Sofia Chialastri">Sofia Chialastri</option>
+                <option value="Alessandro Sirica">Alessandro Sirica</option>
+                <option value="Vittorina Di Vincenzo">Vittorina Di Vincenzo</option>
+            </select>
+            <button class="btn" onclick="saveEvento()">Salva Evento</button>
+        </div>
+
+        <div class="admin-form">
+            <h3>Carica Podcast (Replica)</h3>
+            <input type="text" id="pod-t" placeholder="Titolo della puntata">
+            <input type="text" id="pod-d" placeholder="Breve descrizione">
+            <input type="text" id="pod-src" placeholder="Link file audio (URL .mp3)">
+            <button class="btn" onclick="savePodcast()">Salva Podcast</button>
+        </div>
+
+        <button class="btn" style="background:#444; color:#fff" onclick="localStorage.clear(); location.reload();">Resetta Tutto</button>`;
+}
     function saveNews() {
         const n = { t: document.getElementById('news-t').value, d: document.getElementById('news-d').value, cat: document.getElementById('news-cat').value };
         db.news.unshift(n);
