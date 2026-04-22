@@ -223,7 +223,7 @@
    const audio = document.getElementById('audioStream');
     const btnPlay = document.getElementById('btnPlay');
     const titleDisplay = document.getElementById('current-onair-title');
-    const programDisplay = document.getElementById('program-display-player'); // Il nuovo spazio a destra
+    const programDisplay = document.getElementById('program-display-player');
 
     btnPlay.onclick = () => {
         if (audio.paused) { 
@@ -235,23 +235,21 @@
         }
     };
 
-    // Funzione per capire quale programma è in onda in base all'ora
+    // Calcola il programma in base all'ora di Roma
     function getCurrentProgramName() {
         const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Rome"}));
         const h = now.getHours();
         const d = now.getDay();
         
-        let name = "SHUFFLE";
-        if (h >= 21 || (h >= 0 && h < 1)) name = "MUSICA SOFT";
-        else if (h >= 20 && h < 21) name = "MUSICA 80-90";
-        else if ((d === 0 || d === 6) && h >= 10 && h < 13) name = "MATTIA CHIALASTRI";
-        
-        return name;
+        if (h >= 21 || (h >= 0 && h < 1)) return "MUSICA SOFT";
+        if (h >= 20 && h < 21) return "MUSICA 80-90";
+        if ((d === 0 || d === 6) && h >= 10 && h < 13) return "MATTIA CHIALASTRI";
+        return "SHUFFLE";
     }
 
     async function updateMetadata() {
-        // Aggiorna subito il nome del programma a destra
-        programDisplay.innerText = getCurrentProgramName();
+        // Imposta subito il programma a destra
+        if(programDisplay) programDisplay.innerText = getCurrentProgramName();
 
         try {
             const r = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/qvdruxs5fqvvv');
@@ -266,17 +264,18 @@
                 const match = chunk.match(/"streamTitle":"([^"]+)"/);
                 
                 if (match && match[1]) {
-                    // Se Zeno manda un titolo vuoto o generico, manteniamo "RADIO ESTASI LIVE"
                     const nuovoTitolo = match[1].trim();
-                    titleDisplay.innerText = nuovoTitolo !== "" ? nuovoTitolo : "RADIO ESTASI LIVE";
+                    // Evita che il titolo sparisca se Zeno manda dati vuoti
+                    if (nuovoTitolo !== "") {
+                        titleDisplay.innerText = nuovoTitolo;
+                    }
                 }
-                
-                // Ogni volta che riceve un pacchetto dati, ricontrolla anche il programma (cambio ora)
-                programDisplay.innerText = getCurrentProgramName();
+                // Aggiorna il programma ogni volta che riceve dati (gestisce il cambio ora)
+                if(programDisplay) programDisplay.innerText = getCurrentProgramName();
             }
         } catch (e) {
-            console.error("Errore metadati:", e);
-            setTimeout(updateMetadata, 5000); // Se cade la connessione riprova dopo 5 secondi
+            console.error("Errore connessione metadati, riprovo...");
+            setTimeout(updateMetadata, 5000); 
         }
     }
 
