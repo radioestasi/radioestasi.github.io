@@ -220,23 +220,26 @@
 </footer>
 
 <script>
-   const audio = document.getElementById('audioStream');
+    // 1. COSTANTI DOM (ELEMENTI HTML)
+    const audio = document.getElementById('audioStream');
     const btnPlay = document.getElementById('btnPlay');
     const titleDisplay = document.getElementById('current-onair-title');
     const programDisplay = document.getElementById('program-display-player');
 
-    btnPlay.onclick = () => {
-        if (audio.paused) { 
-            audio.play(); 
-            btnPlay.innerText = "⏸"; 
-        } else { 
-            audio.pause(); 
-            btnPlay.innerText = "▶"; 
-        }
+    // 2. DATABASE (INIZIALIZZAZIONE)
+    const db = {
+        news: JSON.parse(localStorage.getItem('est_news')) || [],
+        eventi: JSON.parse(localStorage.getItem('est_eventi')) || [],
+        podcasts: JSON.parse(localStorage.getItem('est_podcasts')) || []
     };
 
+    // 3. UTILITY TEMPO E ORARI
+    function getRomeTime() { 
+        return new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Rome"})); 
+    }
+
     function getCurrentProgramName() {
-        const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Rome"}));
+        const now = getRomeTime();
         const h = now.getHours();
         const d = now.getDay();
         if (h >= 21 || (h >= 0 && h < 1)) return "MUSICA SOFT";
@@ -245,70 +248,21 @@
         return "SHUFFLE";
     }
 
-    async function updateMetadata() {
-        // Scriviamo il programma a destra
-        if(programDisplay) programDisplay.innerText = getCurrentProgramName();
-
-        try {
-            const r = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/qvdruxs5fqvvv');
-            const reader = r.body.getReader();
-            const decoder = new TextDecoder();
-
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-                
-                const chunk = decoder.decode(value);
-                const match = chunk.match(/"streamTitle":"([^"]+)"/);
-                
-                if (match && match[1]) {
-                    const nuovoTitolo = match[1].trim();
-                    // SE IL TITOLO NON È VUOTO, AGGIORNA IL DISPLAY
-                    if (nuovoTitolo !== "" && nuovoTitolo !== "-") {
-                        titleDisplay.innerText = nuovoTitolo;
-                    }
-                }
-                // Aggiorna il programma a destra ogni volta
-                if(programDisplay) programDisplay.innerText = getCurrentProgramName();
-            }
-        } catch (e) {
-            setTimeout(updateMetadata, 5000); 
-        }
+    function updateGlobalOnAir() {
+        const now = getRomeTime();
+        const h = now.getHours();
+        const d = now.getDay();
+        let cur = "Shuffle";
+        
+        if (h >= 21 || (h >= 0 && h < 1)) cur = "Musica Soft";
+        else if (h >= 20 && h < 21) cur = "Musica 80-90";
+        else if (h >= 8 && h < 10) cur = "Musica 80-90";
+        else if ((d === 0 || d === 6) && h >= 10 && h < 13) cur = "Mattia Chialastri";
+        
+        if (programDisplay) programDisplay.innerText = cur.toUpperCase();
     }
 
-    updateMetadata();
-    
-    const db = {
-        news: JSON.parse(localStorage.getItem('est_news')) || [],
-        eventi: JSON.parse(localStorage.getItem('est_eventi')) || [],
-        podcasts: JSON.parse(localStorage.getItem('est_podcasts')) || []
-    };
-
-    function getRomeTime() { return new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Rome"})); }
-
-    async function fetchRockolSlider() {
-        const rssUrl = 'https://www.rockol.it/rss/news';
-        const container = document.getElementById('rockol-slider-container');
-        try {
-            const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-            const data = await response.json();
-            if (data.status === 'ok') {
-                container.innerHTML = data.items.slice(0, 3).map(item => {
-                    const img = item.enclosure.link || item.thumbnail || 'favicon.jpg';
-                    return `
-                        <div class="rockol-card">
-                            <img src="${img}" class="rockol-img" onerror="this.src='favicon.jpg'">
-                            <div class="rockol-body">
-                                <h4>${item.title}</h4>
-                                <a href="${item.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">Leggi news</a>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        } catch (e) { container.innerHTML = ""; }
-    }
-
+    // 4. LOGICA NAVIGAZIONE PAGINE
     function showPage(pageId) {
         const c = document.getElementById('content');
         window.scrollTo(0,0);
@@ -318,7 +272,6 @@
             const h = now.getHours();
             const d = now.getDay();
             
-            // Logica semplificata per ottenere info programma attuale per la home
             let progCorrente = { t: "Shuffle", d: "La musica senza regole! Niente scalette rigide, niente generi predefiniti.", i: "shuffle.png" };
             let progProssimo = { t: "Musica 80-90", h: "20:00" };
 
@@ -328,7 +281,6 @@
 
             c.innerHTML = `
                 <div class="rockol-slider" id="rockol-slider-container">Caricamento news musicali...</div>
-
                 <section class="section-flex">
                     <div class="hero-text">
                         <h1>Benvenuto/a su Radio Estasi!</h1>
@@ -337,13 +289,11 @@
                     </div>
                     <img src="favicon.jpg" class="hero-img">
                 </section>
-                
                 <section style="background: var(--card-bg); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 60px; border: 1px solid rgba(255,204,0,0.2);">
                     <h2 style="color:var(--primary)">Scarica la nostra App</h2>
                     <p style="margin: 10px 0 20px;">Porta Radio Estasi sempre con te sul tuo smartphone Android!</p>
                     <a href="https://www.appcreator24.com/app3189964-35h0xg" target="_blank" class="btn">SCARICA ORA</a>
                 </section>
-
                 <div class="onair-home-flex">
                     <div class="now-card">
                         <img src="${progCorrente.i}" style="width:120px; height:120px; border-radius:15px; object-fit:cover;">
@@ -358,10 +308,8 @@
                         <h4 style="margin-top:5px">${progProssimo.t}</h4>
                     </div>
                 </div>
-
                 <h2>Ultime News</h2>
                 <div id="h-news">${renderNews(3)}</div>
-                
                 <h2 style="margin-top:40px">Prossimi Eventi</h2>
                 <div id="h-eventi">${renderEventi(2)}</div>
             `;
@@ -399,7 +347,7 @@
                 <div class="prog-item"><img src="cado-tra-le-pagine.png" class="prog-img-circle"><div><h3>Cado tra le pagine</h3><p><strong>Storie per addormentarsi con la mente e sognare con il cuore</strong><br>Cado tra le pagine è il programma radiofonico pensato per chi ama addormentarsi accompagnato dal suono delle parole. Ogni sera, prima di andare a letto, scegliamo per voi un libro e ne leggiamo un capitolo in diretta, per regalarvi un momento di calma, immaginazione e dolce intimità. Tra romanzi, racconti e pagine intramontabili, lasciatevi cullare dalle voci, dalle storie e dalle emozioni che prendono vita nell’aria. Perché, a volte, basta una buona storia per cadere… tra le pagine.<br>Cado tra le pagine – la buonanotte più bella è fatta di parole.</p></div></div>
                 <div class="prog-item"><img src="80-90.png" class="prog-img-circle"><div><h3>80' 90'</h3><p><strong>La musica che non passa mai di moda!</strong><br>Torna l’energia, lo stile e la magia di due decenni indimenticabili! 80’ 90’ è il programma radiofonico che ti fa rivivere le emozioni dei grandi successi che hanno fatto la storia della musica. Dai synth e le sonorità iconiche degli anni Ottanta alla rivoluzione pop, rock e dance dei Novanta, ogni puntata è un viaggio nel tempo tra hit, curiosità, aneddoti e ricordi. Con la conduzione frizzante e tanta passione, 80’ 90’ ti riporta alle colonne sonore della tua vita – quelle che ancora oggi fanno cantare, ballare e sognare.<br>80’ 90’ – Due decenni, una sola grande emozione!</p></div></div>`;
         }
-            else if (pageId === 'podcast') {
+        else if (pageId === 'podcast') {
             c.innerHTML = `<h1>Repliche & Podcast</h1>
                 <p style="margin-bottom:30px; color:#888;">Riascolta i contenuti andati in onda sulla radio.</p>
                 <div id="podcast-list">
@@ -434,13 +382,14 @@
             <p><strong>8. Contatti</strong><br>Per esercitare i tuoi diritti o per qualsiasi domanda riguardo la privacy, puoi contattarci all’indirizzo email: radioestasi1@gmail.com</p>`;
         }
         else if (pageId === 'admin') {
-            let p = prompt("Password:");
-            if(p === "estasi2026") renderAdminPanel();
+            let pass = prompt("Password:");
+            if(pass === "estasi2026") renderAdminPanel();
             else showPage('home');
         }
         updateGlobalOnAir();
     }
 
+    // 5. FUNZIONI DI RENDERING
     function renderNews(limit) {
         if(!db.news.length) return "<p>Nessuna news presente.</p>";
         return db.news.slice(0, limit).map(n => `<div class="admin-form"><small style="color:var(--primary)">${n.cat}</small><h4>${n.t}</h4><p>${n.d}</p></div>`).join('');
@@ -450,86 +399,6 @@
         if(!db.eventi.length) return "<p>Nessun evento in programma.</p>";
         return db.eventi.slice(0, limit).map(e => `<div style="border-left:4px solid var(--primary); padding-left:15px; margin-bottom:20px;"><h4>${e.t}</h4><p>${e.d}</p><small>📍 ${e.loc} | ⏰ ${e.ora} | 🎙 Presenti: ${e.team}</small></div>`).join('');
     }
-
-    async function fetchMusicNews() {
-        const rssUrl = 'https://www.rockol.it/rss/news';
-        const container = document.getElementById('rss-content');
-        try {
-            const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-            const data = await response.json();
-            if (data.status === 'ok') {
-                container.innerHTML = data.items.map(item => `
-                    <div class="admin-form">
-                        <small style="color:var(--primary)">${item.pubDate}</small>
-                        <h3 style="margin:5px 0;">${item.title}</h3>
-                        <p style="font-size:0.9rem; margin-bottom:10px;">${item.description.replace(/<[^>]*>?/gm, '').substring(0, 200)}...</p>
-                        <a href="${item.link}" target="_blank" class="btn" style="padding: 5px 15px; font-size: 0.75rem;">Leggi tutto</a>
-                    </div>
-                `).join('');
-            } else { container.innerHTML = "<p>Impossibile caricare le news musicali.</p>"; }
-        } catch (error) { container.innerHTML = "<p>Errore durante il caricamento.</p>"; }
-    }
-
-    function renderAdminPanel() {
-        document.getElementById('content').innerHTML = `
-            <h1>Admin Panel</h1>
-            <div class="admin-form">
-                <h3>Aggiungi News</h3>
-                <input type="text" id="news-t" placeholder="Titolo della news">
-                <textarea id="news-d" placeholder="Testo della notizia"></textarea>
-                <button class="btn" onclick="saveNews()">Salva News</button>
-            </div>
-            <button class="btn" style="background:red" onclick="localStorage.clear(); location.reload();">Reset Totale Database</button>
-        `;
-    }
-
-    function saveNews() {
-        const t = document.getElementById('news-t').value;
-        const d = document.getElementById('news-d').value;
-        if(t && d) {
-            db.news.unshift({t, d, cat: 'news'});
-            localStorage.setItem('est_news', JSON.stringify(db.news));
-            alert('News salvata!');
-            showPage('home');
-        }
-    }
-
-    // QUESTA PARTE RISOLVE IL CARICAMENTO INIZIALE
-    window.onload = () => {
-        showPage('home');
-        updateMetadata();
-    };
-    
-    function saveEvento() {
-        const e = { 
-            t: document.getElementById('ev-t').value, 
-            d: document.getElementById('ev-d').value, 
-            loc: document.getElementById('ev-loc').value, 
-            ora: document.getElementById('ev-ora').value,
-            team: document.getElementById('ev-team').value 
-        };
-        db.eventi.unshift(e);
-        localStorage.setItem('est_eventi', JSON.stringify(db.eventi));
-        alert("Evento Salvato!");
-        showPage('eventi');
-    }
-   function savePodcast() {
-    const t = document.getElementById('pod-t').value;
-    const d = document.getElementById('pod-d').value;
-    const src = document.getElementById('pod-src').value;
-
-    if (!t || !src) { 
-        alert("Inserisci titolo e il link del file!"); 
-        return; 
-    }
-
-    const p = { t, d, src };
-    db.podcasts.unshift(p);
-    localStorage.setItem('est_podcasts', JSON.stringify(db.podcasts));
-    
-    alert("Podcast collegato correttamente!");
-    showPage('repliche');
-}
 
     function renderPalinsestoLayout() {
         const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -569,23 +438,160 @@
             </div>`).join('');
     }
 
-    function updateGlobalOnAir() {
-        const now = getRomeTime();
-        const h = now.getHours();
-        const d = now.getDay();
-        let cur = "Shuffle";
-        
-        if (h >= 21 || (h >= 0 && h < 1)) cur = "Musica Soft";
-        else if (h >= 20 && h < 21) cur = "Musica 80-90";
-        else if (h >= 8 && h < 10) cur = "Musica 80-90";
-        else if ((d === 0 || d === 6) && h >= 10 && h < 13) cur = "Mattia Chialastri";
-        
-        // CANCELLATA LA RIGA: document.getElementById('current-onair-title').innerText = cur;
-        
-        // Se vuoi che il nome del programma a DESTRA del player si aggiorni:
-        const programDisplay = document.getElementById('program-display-player');
-        if (programDisplay) programDisplay.innerText = cur.toUpperCase();
+    // 6. FUNZIONI ASINCRONE (METADATA & RSS)
+    async function updateMetadata() {
+        if(programDisplay) programDisplay.innerText = getCurrentProgramName();
+        try {
+            const r = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/qvdruxs5fqvvv');
+            const reader = r.body.getReader();
+            const decoder = new TextDecoder();
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                const match = chunk.match(/"streamTitle":"([^"]+)"/);
+                if (match && match[1]) {
+                    const nuovoTitolo = match[1].trim();
+                    if (nuovoTitolo !== "" && nuovoTitolo !== "-") {
+                        titleDisplay.innerText = nuovoTitolo;
+                    }
+                }
+                if(programDisplay) programDisplay.innerText = getCurrentProgramName();
+            }
+        } catch (e) {
+            setTimeout(updateMetadata, 5000); 
+        }
     }
+
+    async function fetchRockolSlider() {
+        const rssUrl = 'https://www.rockol.it/rss/news';
+        const container = document.getElementById('rockol-slider-container');
+        try {
+            const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+            const data = await response.json();
+            if (data.status === 'ok') {
+                container.innerHTML = data.items.slice(0, 3).map(item => {
+                    const img = item.enclosure.link || item.thumbnail || 'favicon.jpg';
+                    return `
+                        <div class="rockol-card">
+                            <img src="${img}" class="rockol-img" onerror="this.src='favicon.jpg'">
+                            <div class="rockol-body">
+                                <h4>${item.title}</h4>
+                                <a href="${item.link}" target="_blank" style="color:var(--primary); font-size:0.8rem;">Leggi news</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        } catch (e) { if(container) container.innerHTML = ""; }
+    }
+
+    async function fetchMusicNews() {
+        const rssUrl = 'https://www.rockol.it/rss/news';
+        const container = document.getElementById('rss-content');
+        try {
+            const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+            const data = await response.json();
+            if (data.status === 'ok') {
+                container.innerHTML = data.items.map(item => `
+                    <div class="admin-form">
+                        <small style="color:var(--primary)">${item.pubDate}</small>
+                        <h3 style="margin:5px 0;">${item.title}</h3>
+                        <p style="font-size:0.9rem; margin-bottom:10px;">${item.description.replace(/<[^>]*>?/gm, '').substring(0, 200)}...</p>
+                        <a href="${item.link}" target="_blank" class="btn" style="padding: 5px 15px; font-size: 0.75rem;">Leggi tutto</a>
+                    </div>
+                `).join('');
+            } else { container.innerHTML = "<p>Impossibile caricare le news musicali.</p>"; }
+        } catch (error) { container.innerHTML = "<p>Errore durante il caricamento.</p>"; }
+    }
+
+    // 7. FUNZIONI ADMIN (SALVATAGGIO)
+    function renderAdminPanel() {
+        document.getElementById('content').innerHTML = `
+            <h1>Admin Panel</h1>
+            <div class="admin-form">
+                <h3>Aggiungi News</h3>
+                <input type="text" id="news-t" placeholder="Titolo della news">
+                <textarea id="news-d" placeholder="Testo della notizia"></textarea>
+                <button class="btn" onclick="saveNews()">Salva News</button>
+            </div>
+            <div class="admin-form">
+                <h3>Aggiungi Evento</h3>
+                <input type="text" id="ev-t" placeholder="Nome Evento">
+                <textarea id="ev-d" placeholder="Descrizione"></textarea>
+                <input type="text" id="ev-loc" placeholder="Località">
+                <input type="text" id="ev-ora" placeholder="Orario">
+                <input type="text" id="ev-team" placeholder="Team Presente">
+                <button class="btn" onclick="saveEvento()">Salva Evento</button>
+            </div>
+            <div class="admin-form">
+                <h3>Collega Podcast/Replica</h3>
+                <input type="text" id="pod-t" placeholder="Titolo">
+                <input type="text" id="pod-d" placeholder="Data o Descrizione">
+                <input type="text" id="pod-src" placeholder="Link al file mp3">
+                <button class="btn" onclick="savePodcast()">Salva Podcast</button>
+            </div>
+            <button class="btn" style="background:red; margin-top:20px" onclick="localStorage.clear(); location.reload();">Reset Totale Database</button>
+        `;
+    }
+
+    function saveNews() {
+        const t = document.getElementById('news-t').value;
+        const d = document.getElementById('news-d').value;
+        if(t && d) {
+            db.news.unshift({t, d, cat: 'news'});
+            localStorage.setItem('est_news', JSON.stringify(db.news));
+            alert('News salvata!');
+            showPage('home');
+        }
+    }
+
+    function saveEvento() {
+        const e = { 
+            t: document.getElementById('ev-t').value, 
+            d: document.getElementById('ev-d').value, 
+            loc: document.getElementById('ev-loc').value, 
+            ora: document.getElementById('ev-ora').value,
+            team: document.getElementById('ev-team').value 
+        };
+        if(e.t) {
+            db.eventi.unshift(e);
+            localStorage.setItem('est_eventi', JSON.stringify(db.eventi));
+            alert("Evento Salvato!");
+            showPage('eventi');
+        }
+    }
+
+    function savePodcast() {
+        const t = document.getElementById('pod-t').value;
+        const d = document.getElementById('pod-d').value;
+        const src = document.getElementById('pod-src').value;
+        if (t && src) { 
+            const p = { t, d, src };
+            db.podcasts.unshift(p);
+            localStorage.setItem('est_podcasts', JSON.stringify(db.podcasts));
+            alert("Podcast collegato correttamente!");
+            showPage('podcast');
+        } else {
+            alert("Inserisci titolo e il link del file!");
+        }
+    }
+
+    // 8. CONTROLLO PLAYER E AVVIO
+    btnPlay.onclick = () => {
+        if (audio.paused) { 
+            audio.play(); 
+            btnPlay.innerText = "⏸"; 
+        } else { 
+            audio.pause(); 
+            btnPlay.innerText = "▶"; 
+        }
+    };
+
+    window.onload = () => {
+        showPage('home');
+        updateMetadata();
+    };
 </script>
 </body>
 </html>
